@@ -3,6 +3,7 @@
 
 #' @param var_df a data.frame with the columns Long.Name and Short.Name to be used as reqVars and shortNames, respectively
 #' @param in_par TRUE/FALSE to determine if data pulls and averaging should be conducted in parallel with dopar
+#' @param n_cores number of cores used in parallelization. Defaults to 10. 
 #' @param json_url URL pointing to JSON table variable lists for desired MOM6 run type and domain
 #' @param release release code. Must match one of the options in the 'cefi_release' column in provided JSON table
 #' @param init initialization code. Must match one of the options in the 'cefi_init_date' column in provided JSON table. For forecast only
@@ -10,7 +11,7 @@
 
 #' @return the output from \code{norm_env} - a list whose length is equal to the number of variables supplied, where each item in the list is a rasterStack of data associated with that variable, with the number of layers equal to the number of time steps available. The function also saves the output from each step - see the package website for necessary directory set up.
 
-get_model_forecast_wrapper <- function(var_df, in_par = TRUE, json_url, release, init, ens){
+get_model_forecast_wrapper <- function(var_df, in_par = TRUE, n_cores = 10, json_url, release, init, ens){
   raw <- avg <- sds <- norm <- vector(mode = 'list', length = nrow(var_df))
 
   if(in_par == TRUE){
@@ -29,10 +30,10 @@ get_model_forecast_wrapper <- function(var_df, in_par = TRUE, json_url, release,
     }
   }
   names(raw) <- var_df$Short.Name
-  save(raw, file = './Data/MOM6/raw_MOM6_forecast.RData')
+  save(raw, file = paste0('./Data/MOM6/raw_MOM6_forecast_ens', ens, '.RData'))
 
   if(in_par == TRUE){
-    cluster <- parallel::makeCluster(10, type='PSOCK')
+    cluster <- parallel::makeCluster(n_cores, type='PSOCK')
     doParallel::registerDoParallel(cluster)
     avg <- foreach::foreach(x = 1:nrow(var_df), .packages = c("ncdf4", 'raster', 'jsonlite')) %do% {
       #for(x in 1:nrow(var_df)){
@@ -47,11 +48,11 @@ get_model_forecast_wrapper <- function(var_df, in_par = TRUE, json_url, release,
     }
   }
   names(avg) <- var_df$Short.Name
-  save(avg, file = './Data/MOM6/avg_MOM6_forecast.RData')
+  save(avg, file = paste0('./Data/MOM6/avg_MOM6_forecast_ens', ens, '.RData'))
 
 
   if(in_par == TRUE){
-    cluster <- parallel::makeCluster(10, type='PSOCK')
+    cluster <- parallel::makeCluster(n_cores, type='PSOCK')
     doParallel::registerDoParallel(cluster)
     sds <- foreach::foreach(y = 1:nrow(var_df), .packages = c("ncdf4", 'raster', 'jsonlite')) %do% {
       #for(y in 1:nrow(var_df)){
@@ -66,10 +67,10 @@ get_model_forecast_wrapper <- function(var_df, in_par = TRUE, json_url, release,
     }
   }
   names(sds) <- var_df$Short.Name
-  save(sds, file = './Data/MOM6/sd_MOM6_forecast.RData')
+  save(sds, file = paste0('./Data/MOM6/sd_MOM6_forecast_ens', ens, '.RData'))
 
   if(in_par == TRUE){
-    cluster <- parallel::makeCluster(10, type='PSOCK')
+    cluster <- parallel::makeCluster(cores, type='PSOCK')
     doParallel::registerDoParallel(cluster)
     norm <- foreach::foreach(x = 1:nrow(var_df), .packages = c("ncdf4", 'raster', 'jsonlite', 'abind')) %dopar% {
       #for(y in 1:nrow(var_df)){
@@ -84,7 +85,7 @@ get_model_forecast_wrapper <- function(var_df, in_par = TRUE, json_url, release,
     }
   }
   names(norm) <- var_df$Short.Name
-  save(norm, file = './Data/MOM6/norm_MOM6_forecast.RData')
+  save(norm, file = paste0('./Data/MOM6/norm_MOM6_forecast_ens', ens, '.RData'))
 
   return(norm)
 } #end function

@@ -3,16 +3,17 @@
 
 #' @param var_df a data.frame with the columns Long.Name and Short.Name to be used as reqVars and shortNames, respectively
 #' @param in_par TRUE/FALSE to determine if data pulls and averaging should be conducted in parallel with dopar
+#' @param n_cores number of cores used in parallelization. Defaults to 10. 
 #' @param json_url URL pointing to JSON table variable lists for desired MOM6 run type and domain
 #' @param release release code. Must match one of the options in the 'cefi_release' column in provided JSON table
 
 #' @return the output from \code{norm_env} - a list whose length is equal to the number of variables supplied, where each item in the list is a rasterStack of data associated with that variable, with the number of layers equal to the number of time steps available. The function also saves the output from each step - see the package website for necessary directory set up.
 
-get_model_hindcast_wrapper <- function(var_df, in_par = TRUE, json_url, release){
+get_model_hindcast_wrapper <- function(var_df, in_par = TRUE, n_cores, json_url, release){
   raw <- avg <- sds <- norm <- vector(mode = 'list', length = nrow(var_df))
 
   if(in_par == TRUE){
-    cluster <- parallel::makeCluster(10, type='PSOCK')
+    cluster <- parallel::makeCluster(n_cores, type='PSOCK')
     doParallel::registerDoParallel(cluster)
     raw <- foreach::foreach(x = 1:nrow(var_df), .packages = c("ncdf4", 'raster', 'jsonlite')) %dopar% {
       #for(x in 1:nrow(var.list)){
@@ -30,7 +31,7 @@ get_model_hindcast_wrapper <- function(var_df, in_par = TRUE, json_url, release)
   save(raw, file = './Data/MOM6/raw_MOM6_hindcast.RData')
 
   if(in_par == TRUE){
-    cluster <- parallel::makeCluster(10, type='PSOCK')
+    cluster <- parallel::makeCluster(n_cores, type='PSOCK')
     doParallel::registerDoParallel(cluster)
     avg <- foreach::foreach(x = 1:nrow(var_df), .packages = c("ncdf4", 'raster', 'jsonlite')) %do% {
       #for(x in 1:nrow(var.list)){
@@ -49,7 +50,7 @@ get_model_hindcast_wrapper <- function(var_df, in_par = TRUE, json_url, release)
 
 
   if(in_par == TRUE){
-    cluster <- parallel::makeCluster(10, type='PSOCK')
+    cluster <- parallel::makeCluster(n_cores, type='PSOCK')
     doParallel::registerDoParallel(cluster)
     sds <- foreach::foreach(y = 1:nrow(var_df), .packages = c("ncdf4", 'raster', 'jsonlite')) %do% {
     #for(y in 1:nrow(var.list)){
@@ -67,7 +68,7 @@ get_model_hindcast_wrapper <- function(var_df, in_par = TRUE, json_url, release)
   save(sds, file = './Data/MOM6/sd_MOM6_hindcast.RData')
 
   if(in_par == TRUE){
-    cluster <- parallel::makeCluster(10, type='PSOCK')
+    cluster <- parallel::makeCluster(n_cores, type='PSOCK')
     doParallel::registerDoParallel(cluster)
     norm <- foreach::foreach(x = 1:nrow(var_df), .packages = c("ncdf4", 'raster', 'jsonlite', 'abind')) %dopar% {
     #for(y in 1:nrow(var.list)){
