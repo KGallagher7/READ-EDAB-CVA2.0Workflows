@@ -45,9 +45,8 @@ library(gstat)
 setwd('/home/kgallagher/ClimateVulnerabilityAssessment2.0/SDMs')
 #setwd('/home/oneapi/ClimateVulnerabilityAssessment2.0/SDMs')
 
-
 ### source functions
-targets::tar_source("/home/kgallagher/ClimateVulnerabilityAssessment2.0/functions") #this will be replaced by calling the package
+targets::tar_source("/home/kgallagher/ClimateVulnerabilityAssessment2.0/functions") #this + library calls will be replaced by calling the package
 #targets::tar_source("/home/oneapi/ClimateVulnerabilityAssessment2.0/functions")
 
 #create species folders and appropriate subfolders 
@@ -56,7 +55,6 @@ targets::tar_source("/home/kgallagher/ClimateVulnerabilityAssessment2.0/function
 spp.list <- read.csv('spp_list.csv')
 #spp.list <- spp.list[,c(1:6)]
 spp.list$Name <- gsub(' ', '', spp.list$Common.Name)
-
 
 #make directory for each species if it doesn't exist; if directory exists, it is not changed
 for(x in 1:nrow(spp.list)){
@@ -78,78 +76,146 @@ for(x in 1:nrow(spp.list)){
 #####GET FISHERIES DATA ######
 ##############################
 
+####1993-2019
 #survey data - needs VPN 
-surv <- standardize_data(dataType = 'Surveys', channel = dbutils::connect_to_database(server="NEFSC_pw_oraprod",uid="KGALLAGHER"))
-write.csv(surv, './Data/csvs/standardized/survey.csv')
+surv <- standardize_fisheries_data(data_type = 'Surveys', channel = dbutils::connect_to_database(server="NEFSC_pw_oraprod",uid="KGALLAGHER"), yr_range = c(1993, 2019))
+write.csv(surv, './Data/csvs/standardized/survey_1993_2019.csv')
 
 #observer data - needs VPN
-obs <- standardize_data(dataType = 'Observer', channel = dbutils::connect_to_database(server="NEFSC_pw_oraprod",uid="KGALLAGHER"))
-write.csv(obs, './Data/csvs/standardized/observer.csv')
+obs <- standardize_fisheries_data(data_type = 'Observer', channel = dbutils::connect_to_database(server="NEFSC_pw_oraprod",uid="KGALLAGHER"), yr_range = c(1993, 2019))
+write.csv(obs, './Data/csvs/standardized/observer_1993_2019.csv')
 
 ## State run surveys 
 #maine/new hampshire
-menh <-  standardize_data(dataType = 'CSV', csv = "./Data/csvs/raw/MaineDMR_Trawl_Survey_Tow_Catch_2025-07-17.csv", csvCols = c('towID', 'Start_Longitude', 'Start_Latitude', 'Start_Date', 'Number_Caught', 'Common_Name'))
-write.csv(menh, './Data/csvs/standardized/MENH.csv')
+menh <-  standardize_fisheries_data(data_type = 'CSV', csv = "./Data/csvs/raw/MaineDMR_Trawl_Survey_Tow_Catch_2025-07-17.csv", csv_columns = c('towID', 'Start_Longitude', 'Start_Latitude', 'Start_Date', 'Number_Caught', 'Common_Name'), yr_range = c(1993, 2019))
+write.csv(menh, './Data/csvs/standardized/MENH_1993_2019.csv')
 
 #mass
-mass <- standardize_data(dataType = 'CSV', csv = "./Data/csvs/raw/MABottom_Trawl_02_2026.csv", csvCols = c('towID', 'Lon', 'Lat', 'Date', 'Num', 'SCI_NAME'))
-write.csv(mass, './Data/csvs/standardized/MA.csv')
+mass <- standardize_fisheries_data(data_type = 'CSV', csv = "./Data/csvs/raw/MABottom_Trawl_02_2026.csv", csv_columns = c('towID', 'Lon', 'Lat', 'Date', 'Num', 'SCI_NAME'), yr_range = c(1993, 2019))
+write.csv(mass, './Data/csvs/standardized/MA_1993_2019.csv')
 
 #new jersey
-nj <- standardize_data(dataType = 'CSV', csv = "./Data/csvs/raw/NJOT_Tow_Catch_2025-07-01.csv", csvCols = c('TOW_ID', 'START_LON', 'START_LAT', 'DATE.FORMAT', 'NUMBER', 'LATIN_NAME'))
-write.csv(nj, './Data/csvs/standardized/NJ.csv')
+nj <- standardize_fisheries_data(data_type = 'CSV', csv = "./Data/csvs/raw/NJOT_Tow_Catch_2025-07-01.csv", csv_columns = c('TOW_ID', 'START_LON', 'START_LAT', 'DATE.FORMAT', 'NUMBER', 'LATIN_NAME'), yr_range = c(1993, 2019))
+write.csv(nj, './Data/csvs/standardized/NJ_1993_2019.csv')
 
 #ct
-ct <- standardize_data(dataType = 'CSV', csv = "./Data/csvs/raw/CT_Tow_Catch_Feb_2026.csv", csvCols = c('Sample.Number', 'Longitude', 'Latitude', 'Date', 'TotalCount', 'name'))
-write.csv(ct, './Data/csvs/standardized/CT.csv')
+ct <- standardize_fisheries_data(data_type = 'CSV', csv = "./Data/csvs/raw/CT_Tow_Catch_Feb_2026.csv", csv_columns = c('Sample.Number', 'Longitude', 'Latitude', 'Date', 'TotalCount', 'name'), yr_range = c(1993, 2019))
+write.csv(ct, './Data/csvs/standardized/CT_1993_2019.csv')
 
 #delaware
-de <- standardize_data(dataType = 'CSV', csv = "./Data/csvs/raw/DE_Tow_Catch_2025-07-18.csv", csvCols = c('towID', 'LONDD', 'LATDD', 'date', 'number', 'SCI_NAME'))
-write.csv(de, './Data/csvs/standardized/DE.csv')
+de <- standardize_fisheries_data(data_type = 'CSV', csv = "./Data/csvs/raw/DE_Tow_Catch_2025-07-18.csv", csv_columns = c('towID', 'LONDD', 'LATDD', 'date', 'number', 'SCI_NAME'), yr_range = c(1993, 2019))
+write.csv(de, './Data/csvs/standardized/DE_1993_2019.csv')
 
 #neamap 
-neamap <- standardize_data(dataType = 'CSV', csv = "./Data/csvs/raw/NEAMAP_Tow_Catch_Feb2026.csv", csvCols = c('station', 'lon', 'lat', 'date', 'present_absent', 'SCI_NAME'))
-write.csv(neamap, './Data/csvs/standardized/NEAMAP.csv')
+neamap <- standardize_fisheries_data(data_type = 'CSV', csv = "./Data/csvs/raw/NEAMAP_Tow_Catch_Feb2026.csv", csv_columns = c('station', 'lon', 'lat', 'date', 'present_absent', 'SCI_NAME'), yr_range = c(1993, 2019))
+write.csv(neamap, './Data/csvs/standardized/NEAMAP_1993_2019.csv')
 
 #ny 
-ny <- standardize_data(dataType = 'CSV', csv = "./Data/csvs/raw/NYDEC_Tow_Catch_Feb2026.csv", csvCols = c('STATION', 'LONDD', 'LATDD', 'time', 'Presence', 'COM_NAME'))
-write.csv(ny, './Data/csvs/standardized/NY.csv')
+ny <- standardize_fisheries_data(data_type = 'CSV', csv = "./Data/csvs/raw/NYDEC_Tow_Catch_Feb2026.csv", csv_columns = c('STATION', 'LONDD', 'LATDD', 'time', 'Presence', 'COM_NAME'), yr_range = c(1993, 2019))
+write.csv(ny, './Data/csvs/standardized/NY_1993_2019.csv')
 
 ####pull in older NEAMAP & MA w/bft
 #neamap 
-neamapBFT <- standardize_data(dataType = 'CSV', csv = "./Data/csvs/raw/NEAMAP_Tow_Catch_2025-09-15-wBFT.csv", csvCols = c('station', 'lon', 'lat', 'date', 'present_absent', 'SCI_NAME'))
-write.csv(neamapBFT, './Data/csvs/standardized/NEAMAP-BFT.csv')
+neamapBFT <- standardize_fisheries_data(data_type = 'CSV', csv = "./Data/csvs/raw/NEAMAP_Tow_Catch_2025-09-15-wBFT.csv", csv_columns = c('station', 'lon', 'lat', 'date', 'present_absent', 'SCI_NAME'), yr_range = c(1993, 2019))
+write.csv(neamapBFT, './Data/csvs/standardized/NEAMAP-BFT_1993_2019.csv')
 
 #mass
-massBFT <- standardize_data(dataType = 'CSV', csv = "./Data/csvs/raw/MABottom_Trawl_2025-08-6-wBFT.csv", csvCols = c('towID', 'Lon', 'Lat', 'Date', 'Num', 'SCI_NAME'))
-write.csv(massBFT, './Data/csvs/standardized/MA-BFT.csv')
+massBFT <- standardize_fisheries_data(data_type = 'CSV', csv = "./Data/csvs/raw/MABottom_Trawl_2025-08-6-wBFT.csv", csv_columns = c('towID', 'Lon', 'Lat', 'Date', 'Num', 'SCI_NAME'), yr_range = c(1993, 2019))
+write.csv(massBFT, './Data/csvs/standardized/MA-BFT_1993_2019.csv')
 
 ###additional smooth dogfish presences from HMS
-hmsSD <- standardize_data(dataType = 'CSV', csv = './Data/csvs/raw/HMS_SmoothDogfish_09-12-25.csv', csvCols = c('id', 'LON', 'LAT', 'date', 'pa', 'SCI_NAME'))
-write.csv(hmsSD, './Data/csvs/standardized/HMS-SD.csv')
+hmsSD <- standardize_fisheries_data(data_type = 'CSV', csv = './Data/csvs/raw/HMS_SmoothDogfish_09-12-25.csv', csv_columns = c('id', 'LON', 'LAT', 'date', 'pa', 'SCI_NAME'), yr_range = c(1993, 2019))
+write.csv(hmsSD, './Data/csvs/standardized/HMS-SD_1993_2019.csv')
 
 ##shrimp survey
-shrimp <- standardize_data(dataType = 'CSV', csv = './Data/csvs/raw/NEFSC_NShrimp_092025.csv', csvCols = c('towID', 'DECDEG_BEGLON', 'DECDEG_BEGLAT', 'BEGIN_EST_TOWDATE', 'EXPCATCHNUM', 'SCINAME'))
-write.csv(shrimp, './Data/csvs/standardized/shrimp.csv')
+shrimp <- standardize_fisheries_data(data_type = 'CSV', csv = './Data/csvs/raw/NEFSC_NShrimp_092025.csv', csv_columns = c('towID', 'DECDEG_BEGLON', 'DECDEG_BEGLAT', 'BEGIN_EST_TOWDATE', 'EXPCATCHNUM', 'SCINAME'), yr_range = c(1993, 2019))
+write.csv(shrimp, './Data/csvs/standardized/shrimp_1993_2019.csv')
 
 #gom bll 
-gom <- standardize_data(dataType = 'CSV', csv = "./Data/csvs/raw/GOM_BLLS_092025.csv", csvCols = c('ID', 'DECDEG_BEGLON_SET', 'DECDEG_BEGLAT_SET', 'startDate', 'CATCHNUM', 'COMMON_NAME'))
-write.csv(gom, './Data/csvs/standardized/GOMBLL.csv')
+gom <- standardize_fisheries_data(data_type = 'CSV', csv = "./Data/csvs/raw/GOM_BLLS_092025.csv", csv_columns = c('ID', 'DECDEG_BEGLON_SET', 'DECDEG_BEGLAT_SET', 'startDate', 'CATCHNUM', 'COMMON_NAME'), yr_range = c(1993, 2019))
+write.csv(gom, './Data/csvs/standardized/GOMBLL_1993_2019.csv')
 
 #GOP
-gop <- standardize_data(dataType = 'CSV', csv = "./Data/csvs/raw/GOP_092025.csv", csvCols = c('ID', 'SET_BEGIN_LONG_CONV', 'SET_BEGIN_LAT_CONV', 'startDate', 'NUM_FISH', 'SPECIES_NAME'))
-write.csv(gop, './Data/csvs/standardized/GOP.csv')
+gop <- standardize_fisheries_data(data_type = 'CSV', csv = "./Data/csvs/raw/GOP_092025.csv", csv_columns = c('ID', 'SET_BEGIN_LONG_CONV', 'SET_BEGIN_LAT_CONV', 'startDate', 'NUM_FISH', 'SPECIES_NAME'), yr_range = c(1993, 2019))
+write.csv(gop, './Data/csvs/standardized/GOP_1993_2019.csv')
 
 #POP
-pop <- standardize_data(dataType = 'CSV', csv = "./Data/csvs/raw/POP_092025.csv", csvCols = c('ID', 'LONDD', 'LATDD', 'startDate', 'NUM_FISH', 'SPECIES_NAME'))
-write.csv(pop, './Data/csvs/standardized/POP.csv')
+pop <- standardize_fisheries_data(data_type = 'CSV', csv = "./Data/csvs/raw/POP_092025.csv", csv_columns = c('ID', 'LONDD', 'LATDD', 'startDate', 'NUM_FISH', 'SPECIES_NAME'), yr_range = c(1993, 2019))
+write.csv(pop, './Data/csvs/standardized/POP_1993_2019.csv')
+
+###2020-2023
+#survey data - needs VPN 
+surv <- standardize_fisheries_data(data_type = 'Surveys', channel = dbutils::connect_to_database(server="NEFSC_pw_oraprod",uid="KGALLAGHER"), yr_range = c(2020, 2023))
+write.csv(surv, './Data/csvs/standardized/survey_2020_2023.csv')
+
+#observer data - needs VPN
+obs <- standardize_fisheries_data(data_type = 'Observer', channel = dbutils::connect_to_database(server="NEFSC_pw_oraprod",uid="KGALLAGHER"), yr_range = c(2020, 2023))
+write.csv(obs, './Data/csvs/standardized/observer_2020_2023.csv')
+
+## State run surveys 
+#maine/new hampshire
+menh <-  standardize_fisheries_data(data_type = 'CSV', csv = "./Data/csvs/raw/MaineDMR_Trawl_Survey_Tow_Catch_2025-07-17.csv", csv_columns = c('towID', 'Start_Longitude', 'Start_Latitude', 'Start_Date', 'Number_Caught', 'Common_Name'), yr_range = c(2020, 2023))
+write.csv(menh, './Data/csvs/standardized/MENH_2020_2023.csv')
+
+#mass
+mass <- standardize_fisheries_data(data_type = 'CSV', csv = "./Data/csvs/raw/MABottom_Trawl_02_2026.csv", csv_columns = c('towID', 'Lon', 'Lat', 'Date', 'Num', 'SCI_NAME'), yr_range = c(2020, 2023))
+write.csv(mass, './Data/csvs/standardized/MA_2020_2023.csv')
+
+#new jersey
+nj <- standardize_fisheries_data(data_type = 'CSV', csv = "./Data/csvs/raw/NJOT_Tow_Catch_2025-07-01.csv", csv_columns = c('TOW_ID', 'START_LON', 'START_LAT', 'DATE.FORMAT', 'NUMBER', 'LATIN_NAME'), yr_range = c(2020, 2023))
+write.csv(nj, './Data/csvs/standardized/NJ_2020_2023.csv')
+
+#ct
+ct <- standardize_fisheries_data(data_type = 'CSV', csv = "./Data/csvs/raw/CT_Tow_Catch_Feb_2026.csv", csv_columns = c('Sample.Number', 'Longitude', 'Latitude', 'Date', 'TotalCount', 'name'), yr_range = c(2020, 2023))
+write.csv(ct, './Data/csvs/standardized/CT_2020_2023.csv')
+
+#delaware
+de <- standardize_fisheries_data(data_type = 'CSV', csv = "./Data/csvs/raw/DE_Tow_Catch_2025-07-18.csv", csv_columns = c('towID', 'LONDD', 'LATDD', 'date', 'number', 'SCI_NAME'), yr_range = c(2020, 2023))
+write.csv(de, './Data/csvs/standardized/DE_2020_2023.csv')
+
+#neamap 
+neamap <- standardize_fisheries_data(data_type = 'CSV', csv = "./Data/csvs/raw/NEAMAP_Tow_Catch_Feb2026.csv", csv_columns = c('station', 'lon', 'lat', 'date', 'present_absent', 'SCI_NAME'), yr_range = c(2020, 2023))
+write.csv(neamap, './Data/csvs/standardized/NEAMAP_2020_2023.csv')
+
+#ny 
+ny <- standardize_fisheries_data(data_type = 'CSV', csv = "./Data/csvs/raw/NYDEC_Tow_Catch_Feb2026.csv", csv_columns = c('STATION', 'LONDD', 'LATDD', 'time', 'Presence', 'COM_NAME'), yr_range = c(2020, 2023))
+write.csv(ny, './Data/csvs/standardized/NY_2020_2023.csv')
+
+####pull in older NEAMAP & MA w/bft
+#neamap 
+neamapBFT <- standardize_fisheries_data(data_type = 'CSV', csv = "./Data/csvs/raw/NEAMAP_Tow_Catch_2025-09-15-wBFT.csv", csv_columns = c('station', 'lon', 'lat', 'date', 'present_absent', 'SCI_NAME'), yr_range = c(2020, 2023))
+write.csv(neamapBFT, './Data/csvs/standardized/NEAMAP-BFT_2020_2023.csv')
+
+#mass
+massBFT <- standardize_fisheries_data(data_type = 'CSV', csv = "./Data/csvs/raw/MABottom_Trawl_2025-08-6-wBFT.csv", csv_columns = c('towID', 'Lon', 'Lat', 'Date', 'Num', 'SCI_NAME'), yr_range = c(2020, 2023))
+write.csv(massBFT, './Data/csvs/standardized/MA-BFT_2020_2023.csv')
+
+###additional smooth dogfish presences from HMS
+hmsSD <- standardize_fisheries_data(data_type = 'CSV', csv = './Data/csvs/raw/HMS_SmoothDogfish_09-12-25.csv', csv_columns = c('id', 'LON', 'LAT', 'date', 'pa', 'SCI_NAME'), yr_range = c(2020, 2023))
+write.csv(hmsSD, './Data/csvs/standardized/HMS-SD_2020_2023.csv')
+
+##shrimp survey
+shrimp <- standardize_fisheries_data(data_type = 'CSV', csv = './Data/csvs/raw/NEFSC_NShrimp_092025.csv', csv_columns = c('towID', 'DECDEG_BEGLON', 'DECDEG_BEGLAT', 'BEGIN_EST_TOWDATE', 'EXPCATCHNUM', 'SCINAME'), yr_range = c(2020, 2023))
+write.csv(shrimp, './Data/csvs/standardized/shrimp_2020_2023.csv')
+
+#gom bll 
+gom <- standardize_fisheries_data(data_type = 'CSV', csv = "./Data/csvs/raw/GOM_BLLS_092025.csv", csv_columns = c('ID', 'DECDEG_BEGLON_SET', 'DECDEG_BEGLAT_SET', 'startDate', 'CATCHNUM', 'COMMON_NAME'), yr_range = c(2020, 2023))
+write.csv(gom, './Data/csvs/standardized/GOMBLL_2020_2023.csv')
+
+#GOP
+gop <- standardize_fisheries_data(data_type = 'CSV', csv = "./Data/csvs/raw/GOP_092025.csv", csv_columns = c('ID', 'SET_BEGIN_LONG_CONV', 'SET_BEGIN_LAT_CONV', 'startDate', 'NUM_FISH', 'SPECIES_NAME'), yr_range = c(2020, 2023))
+write.csv(gop, './Data/csvs/standardized/GOP_2020_2023.csv')
+
+#POP
+pop <- standardize_fisheries_data(data_type = 'CSV', csv = "./Data/csvs/raw/POP_092025.csv", csv_columns = c('ID', 'LONDD', 'LATDD', 'startDate', 'NUM_FISH', 'SPECIES_NAME'), yr_range = c(2020, 2023))
+write.csv(pop, './Data/csvs/standardized/POP_2020_2023.csv')
 ##############################
 
 ##############################
 #####GET MOM6 DATA ###########
 ##############################
 
-var.list <- create_var_list(varLong = c('Bottom Temperature', 
+var.list <- data.frame(Long.Name = c('Bottom Temperature', 
                              'Bottom Oxygen', 
                              'Sea Water Salinity at Sea Floor', 
                             'Bottom Aragonite Solubility', 
@@ -166,173 +232,19 @@ var.list <- create_var_list(varLong = c('Bottom Temperature',
                              'Large zooplankton nitrogen biomass in upper 100m',
                              'Water column net primary production vertical integral', 
                              'Downward Flux of Particulate Organic Carbon'), 
-                            varShort = c('bottomT', 'bottomO2', 'bottomS', 'bottomArg', 
+                            Short.Name = c('bottomT', 'bottomO2', 'bottomS', 'bottomArg', 
                              'surfaceT', 'surfaceS', 'surfacepH', 'MLD', 
                              'diazPP', 'smallPP', 'mediumPP', 'largePP', 
-                             'smallZoo', 'mediumZoo', 'largeZoo', 'intNPP', 'POC'),
-                            names = c("Long.Name", "Short.Name"))
+                             'smallZoo', 'mediumZoo', 'largeZoo', 'intNPP', 'POC'))
 
 ####hindcast
-raw <- avg <- sds <- norm <- vector(mode = 'list', length = nrow(var.list))
-
-cluster <- makeCluster(10, type='PSOCK')
-registerDoParallel(cluster)
-raw <- foreach(x = 1:nrow(var.list), .packages = c("ncdf4", 'raster', 'jsonlite')) %dopar% {
-#for(x in 1:nrow(var.list)){
-  r <- pull_hind(varURL = "https://psl.noaa.gov/cefi_portal/data_index/cefi_data_indexing.Projects.CEFI.regional_mom6.cefi_portal.northwest_atlantic.full_domain.hindcast.json", reqVars = var.list$Long.Name[x], shortNames = var.list$Short.Name[x], release = 'r20230520')
-  
-  #a <- avg_env(r)
-  #s <- sd_env(r)
-  
-  #n <- norm_env(rawList = r, avgList = a, shortNames = var.list$Short.Name[x])
-  
-  raw[[x]] <- r
-  #avg[[x]] <- a
-  #norm[[x]] <- n
-  
-  #print(x)
-}
-stopCluster(cluster)
-names(raw) <- var.list$Short.Name
-save(raw, file = '/home/kgallagher/ClimateVulnerabilityAssessment2.0/SDMs/Data/MOM6/raw_MOM6_082025.RData')
-
-cluster <- makeCluster(10, type='PSOCK')
-registerDoParallel(cluster)
-avg <- foreach(x = 1:nrow(var.list), .packages = c("ncdf4", 'raster', 'jsonlite')) %do% {
-  #for(x in 1:nrow(var.list)){
- # r <- pull_env(varURL = "https://psl.noaa.gov/cefi_portal/data_index/cefi_data_indexing.Projects.CEFI.regional_mom6.cefi_portal.northwest_atlantic.full_domain.hindcast.json", reqVars = var.list$Long.Name[x], shortNames = var.list$Short.Name[x], release = 'r20230520')
-  
-  a <- avg_env(raw[[x]])
-  
-  #n <- norm_env(rawList = r, avgList = a, shortNames = var.list$Short.Name[x])
-  
- # raw[[x]] <- r
-  avg[[x]] <- a
-  #norm[[x]] <- n
-  
-  #print(x)
-}
-stopCluster(cluster)
-names(avg) <- var.list$Short.Name
-save(avg, file = '/home/kgallagher/ClimateVulnerabilityAssessment2.0/SDMs/Data/MOM6/avg_MOM6_082025.RData')
-
-load('/home/kgallagher/ClimateVulnerabilityAssessment2.0/SDMs/Data/MOM6/raw_MOM6_082025.RData')
-load('/home/kgallagher/ClimateVulnerabilityAssessment2.0/SDMs/Data/MOM6/avg_MOM6_082025.RData')
-#cluster <- makeCluster(10, type='PSOCK')
-#registerDoParallel(cluster)
-#sds <- foreach(y = 1:nrow(var.list), .packages = c("ncdf4", 'raster', 'jsonlite')) %do% {
-  for(y in 1:nrow(var.list)){
-  # r <- pull_env(varURL = "https://psl.noaa.gov/cefi_portal/data_index/cefi_data_indexing.Projects.CEFI.regional_mom6.cefi_portal.northwest_atlantic.full_domain.hindcast.json", reqVars = var.list$Long.Name[x], shortNames = var.list$Short.Name[x], release = 'r20230520')
-  
-  #a <- avg_env(raw[[x]])
-  s <- sd_env(raw[[y]])
-  
-  #n <- norm_env(rawList = r, avgList = a, shortNames = var.list$Short.Name[x])
-  
-  # raw[[x]] <- r
-  sds[[y]] <- s
-  #norm[[x]] <- n
-  
- print(y)
-}
-#stopCluster(cluster)
-names(sds) <- var.list$Short.Name
-save(sds, file = '/home/kgallagher/ClimateVulnerabilityAssessment2.0/SDMs/Data/MOM6/sd_MOM6_092025.RData')
-
-
-#cluster <- makeCluster(10, type='PSOCK')
-#registerDoParallel(cluster)
-#norm <- foreach(x = 1:nrow(var.list), .packages = c("ncdf4", 'raster', 'jsonlite', 'abind')) %dopar% {
-  for(y in 1:nrow(var.list)){
-  #r <- pull_env(varURL = "https://psl.noaa.gov/cefi_portal/data_index/cefi_data_indexing.Projects.CEFI.regional_mom6.cefi_portal.northwest_atlantic.full_domain.hindcast.json", reqVars = var.list$Long.Name[x], shortNames = var.list$Short.Name[x], release = 'r20230520')
-  
-  #a <- avg_env(r)
-  
-  n <- norm_env(rawList = raw[[y]], avgList = avg[[y]], sdList = sds[[y]], shortNames = var.list$Short.Name[y])
-  
- # raw[[x]] <- r
-  #avg[[x]] <- a
-  norm[[y]] <- n
-  
-  print(y)
-}
-#stopCluster(cluster)
-names(norm) <- var.list$Short.Name
-save(norm, file = '/home/kgallagher/ClimateVulnerabilityAssessment2.0/SDMs/Data/MOM6/norm_MOM6_092025.RData')
-
+normH <- get_model_hindcast_wrapper(var_df = var.list, in_par = T, n_cores = 5, json_url = "https://psl.noaa.gov/cefi_portal/data_index/cefi_data_indexing.Projects.CEFI.regional_mom6.cefi_portal.northwest_atlantic.full_domain.hindcast.json", release = 'r20230520')
+save('./Data/MOM6/norm_MOM6_082025.RData')
 
 ###decadal forecast
-var.list <- create_var_list(varLong = c('Sea Water Potential Temperature at Sea Floor', 
-                             'Bottom Oxygen', 
-                             'Sea Water Salinity at Sea Floor', 
-                            'Bottom Aragonite Solubility', 
-                             'Sea Surface Temperature', 
-                             'Sea Surface Salinity', 
-                             'Surface pH', 
-                             'Mixed layer depth (delta rho = 0.03)',
-                             'Diazotroph new (NO3-based) prim. prod. integral in upper 100m', 
-                             'Small phyto. new (NO3-based) prim. prod. integral in upper 100m', 
-                             'Medium phyto. new (NO3-based) prim. prod. integral in upper 100m', 
-                            'Large phyto. new (NO3-based) prim. prod. integral in upper 100m',
-                             'Small zooplankton nitrogen biomass in upper 100m',
-                             'Medium zooplankton nitrogen biomass in upper 100m',
-                             'Large zooplankton nitrogen biomass in upper 100m',
-                             'Water column net primary production vertical integral', 
-                             'Downward Flux of Particulate Organic Carbon'), 
-                            varShort = c('bottomT', 'bottomO2', 'bottomS', 'bottomArg', 
-                             'surfaceT', 'surfaceS', 'surfacepH', 'MLD', 
-                             'diazPP', 'smallPP', 'mediumPP', 'largePP', 
-                             'smallZoo', 'mediumZoo', 'largeZoo', 'intNPP', 'POC'),
-                            names = c("Long.Name", "Short.Name"))
-raw <- avg <- sds <- norm <- vector(mode = 'list', length = nrow(var.list))
-
-cluster <- makeCluster(2, type='PSOCK')
-registerDoParallel(cluster)
-raw <- foreach(x = 1:nrow(var.list), .packages = c("ncdf4", 'raster', 'jsonlite', 'abind')) %dopar% {
-#for(x in 1:nrow(var.list)){
-  r <- pull_forecast(varURL = "https://psl.noaa.gov/cefi_portal/data_index/cefi_data_indexing.Projects.CEFI.regional_mom6.cefi_portal.northwest_atlantic.full_domain.decadal_forecast.json", reqVars = var.list$Long.Name[x], shortNames = var.list$Short.Name[x], release = 'r20250925', init = 'i202001')
-  raw[[x]] <- r
+for(x in 1:10){
+  normF <- get_model_forecast_wrapper(var_df = var.list, in_par = T, n_cores = 5, json_url = "https://psl.noaa.gov/cefi_portal/data_index/cefi_data_indexing.Projects.CEFI.regional_mom6.cefi_portal.northwest_atlantic.full_domain.decadal_forecast.json", release = 'r20250925', init = 'i202001', ens = x)
 }
-stopCluster(cluster)
-names(raw) <- var.list$Short.Name
-save(raw, file = './Data/MOM6/raw_MOM6_decadalforecast_102025.RData')
-
-cluster <- makeCluster(5, type='PSOCK')
-registerDoParallel(cluster)
-avg <- foreach(x = 1:nrow(var.list), .packages = c("ncdf4", 'raster', 'jsonlite')) %do% {
-  #for(x in 1:nrow(var.list)){
-  a <- avg_env(raw[[x]])
-  avg[[x]] <- a
-}
-stopCluster(cluster)
-names(avg) <- var.list$Short.Name
-save(avg, file = './Data/MOM6/avg_MOM6_decadalforecast_092025.RData')
-
-#load('./Data/MOM6/raw_MOM6_decadalforecast_092025.RData')
-#load('./Data/MOM6/avg_MOM6_decadalforecast_092025.RData')
-cluster <- makeCluster(5, type='PSOCK')
-registerDoParallel(cluster)
-sds <- foreach(y = 1:nrow(var.list), .packages = c("ncdf4", 'raster', 'jsonlite')) %do% {
-  for(y in 1:nrow(var.list)){
-  s <- sd_env(raw[[y]])
-  sds[[y]] <- s
-}
-stopCluster(cluster)
-names(sds) <- var.list$Short.Name
-save(sds, file = './Data/MOM6/sd_MOM6_decadalforecast_092025.RData')
-
-
-cluster <- makeCluster(10, type='PSOCK')
-registerDoParallel(cluster)
-norm <- foreach(x = 1:nrow(var.list), .packages = c("ncdf4", 'raster', 'jsonlite', 'abind')) %dopar% {
-  #for(y in 1:nrow(var.list)){
-  n <- norm_env(rawList = raw[[y]], avgList = avg[[y]], sdList = sds[[y]], shortNames = var.list$Short.Name[y])
-  norm[[y]] <- n
-}
-#stopCluster(cluster)
-names(norm) <- var.list$Short.Name
-save(norm, file = './Data/MOM6/norm_MOM6_decadalforecast_092025.RData')
-
 ##############################
 
 ##############################
